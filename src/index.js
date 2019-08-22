@@ -1,3 +1,6 @@
+/* --Imports-- */
+const RibosomalRTF = require("RibosomalRTF");
+
 /* --Globals-- */
 let files;
 let lowLevel = 0;

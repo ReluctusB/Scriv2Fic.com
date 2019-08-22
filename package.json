@@ -2,18 +2,22 @@
   "name": "scriv2fic.com",
   "version": "1.0.0",
   "description": "Online Scrivener to BBCode compiler and conversion tool.",
-  "main": "scripts.js",
+  "private": "true",
   "scripts": {
-    "test": "test"
+    "test": "test",
+    "build": "webpack --config webpack.config.js"
   },
   "keywords": [
     "scivener",
-    "fimfiction",
     "bbcode"
   ],
   "author": "RB",
   "license": "ISC",
   "dependencies": {
     "ribosomalrtf": "0.0.1"
+  },
+  "devDependencies": {
+    "webpack": "^4.39.2",
+    "webpack-cli": "^3.3.7"
   }
 }
