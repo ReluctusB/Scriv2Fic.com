@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang = "en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Scriv2Fic.com</title>
+		<link rel="stylesheet" href="style.css" type="text/css">
+		<script src="scripts.js"></script>
+	</head>
+	<body>	
+		<h1>Scriv2Fic.com</h1>
+		<div><i>Scrivener to BBCode compiler - V1.0.0</i></div>
+
+		<main>
+			<input type="file" id="scrivdrop" accept=".scriv" webkitdirectory data-unbound="scrivselector" data-unbound-controller="true">
+
+			<div id="fileInterface" data-unbound="fileinterface" data-unbound-controller="true">
+				<h3 id="scrivTitle"></h3>
+				<style id="breakStyle">.level0{text-decoration:underline;}</style>
+
+				<div class="files-container">
+					<ul class="files" id="scrivDir"></ul>
+				</div>
+
+				<div>
+					<span>
+						<label for="breakSelector">Divide chapters on level: </label>
+						<select id="breakSelector"></select>
+					</span>
+					<span>
+						<label for="dividerDatalist">Divider: </label>
+						<input list="dividerDatalist" id="dividerInput" value="[hr]">
+						<datalist id="dividerDatalist">
+							<option value="[hr]">
+							<option value="\\n\\n\\n">
+						</datalist>
+					</span>
+				</div>
+
+				<div class="footer-bar">
+					<button disabled="false" id="submitScriv">Convert & Compile</button>
+					<span id="errorDisplay"></span>
+					<div class="right"><button id="clipbutton">Copy to clipboard</button></div>
+				</div>
+
+				<textarea id="outputfield"></textarea>
+			</div>
+		</main>
+		<footer>
+			<i><a href="https://github.com/ReluctusB">Github</a> || <a href="https://www.patreon.com/user?u=7233771">Patreon</a></i>
+		</footer>
+	</body>
+</html>
