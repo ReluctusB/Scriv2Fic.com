@@ -10,7 +10,7 @@ module.exports = {
 	},
   output: {
     filename: 'scripts.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'docs')
   },
   optimization: {
     minimizer: [new TerserPlugin()],
