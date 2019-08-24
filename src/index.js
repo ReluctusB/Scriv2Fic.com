@@ -1,3 +1,5 @@
+/* This is an utter Frankenstein-esque mess, and I'm sorry. */
+
 /* --Imports-- */
 const RibosomalRTF = require("RibosomalRTF");
 
@@ -64,6 +66,8 @@ class FileInterface extends Controller {
         this.submitScriv = undefined;
 
         this.scrivSelector = undefined;
+        this.outputField = undefined;
+        this.clipButton = undefined;
 
         this.fileList = [];
         this.lowLevel = 0;
@@ -78,12 +82,17 @@ class FileInterface extends Controller {
         this.scrivSelector = document.getElementById("scrivdrop");
         this.scrivDir = document.getElementById("scrivDir");
         this.submitScriv = document.getElementById("submitScriv");
+        this.outputField = document.getElementById("outputfield");
+        this.clipButton = document.getElementById("clipbutton");
 
         this.scrivSelector.addEventListener("input",()=>{
             this.process(this.scrivSelector.files);
         });
         this.submitScriv.addEventListener("click",()=>{
             this.submit();
+        });
+        this.clipButton.addEventListener("click",()=>{
+            navigator.clipboard.writeText(this.outputField.value);
         });
     }
     /* Finds a .scrivx file from a filelist */
@@ -122,10 +131,9 @@ class FileInterface extends Controller {
         /* Selects or deselects all children of a file (me) in the file tree to be included in the compile */
         function checkChildren(me) {
             const includeBoxes = document.getElementsByClassName("compileIncludeBox");
-            const thisBox = me.value.split("⚐Ï⚑");
             const thisIndex = [...includeBoxes].indexOf(me);
             for (let i=thisIndex+1;i<includeBoxes.length;i++) {
-                if (parseInt(includeBoxes[i].value.split("⚐Ï⚑")[1]) > parseInt(thisBox[1])) {
+                if (parseInt(includeBoxes[i].dataset.level) > parseInt(me.dataset.level)) {
                     includeBoxes[i].checked = me.checked;
                 } else {
                     return;
@@ -166,70 +174,31 @@ class FileInterface extends Controller {
                 untitledNo++;
             }
             const ident = file.getAttribute("Type") != "Folder" ? file.getAttribute("ID") : "Folder";
-            let icon = "file-text";
+            let icon = "🗎";
             let hierDisplay = level > 1 ? "none" : "flex";
             let include = file.getElementsByTagName("IncludeInCompile")[0] ? true : false;
             let hasChildren = ""
-            if (file.getElementsByTagName("Children")[0]) {
-                if (level !== 0) {
-                    hasChildren = "<i class='fa fa-angle-right' style='margin-left:1rem;font-size:1.3rem;'></i>"
-                } else {
-                    hasChildren = "<i class='fa fa-angle-down' style='margin-left:1rem;font-size:1.3rem;'></i>"
-                }
-            }
-            if (file.getAttribute("Type").endsWith("Folder")) {icon = "folder";}
+            if (file.getAttribute("Type").endsWith("Folder")) {icon = "🗁";}
             let listString = `<span class='checkbox' style="margin-left: ${(level*2).toString()}rem">
-                                <label class='styled-checkbox'>
+                                <label>
                                     <input type='checkbox' class='compileIncludeBox' data-identifier='${ident}' data-level='${level}' data-title='${title}' ${include?"checked":""}>
-                                    <a></a>
                                 </label>
-                            </span> <i class="fa fa-${icon}" style="margin-right:.5rem"></i> 
-                            <span class="level${level}">${title}</span><b>${hasChildren}</b>`;
+                            </span>
+                            <span class="level${level}">${icon} ${title}</span>`;
             return eleBuilder("LI",{HTML:listString, class:title, value:level, style:"display:"+hierDisplay});
-        }
-
-        /* Shows or hides all children of a file (me) in the file tree */
-        function showHideChildren(me) {
-            const fileItems = document.querySelectorAll("#scrivDir > li");
-            const thisLevel = parseInt(me.value);
-            const thisIndex = [...fileItems].indexOf(me);
-            const dropIcon = me.getElementsByTagName("I")[1];
-            if (dropIcon){
-                if (dropIcon.className === "fa fa-angle-right") {
-                    dropIcon.className = "fa fa-angle-down";
-                } else {
-                    dropIcon.className = "fa fa-angle-right";
-                }
-            }
-            for (let i=thisIndex+1;i<fileItems.length;i++) {
-                if (parseInt(fileItems[i].value) > thisLevel) {
-                    if (fileItems[i].style.display !== "none") {
-                        fileItems[i].style.display = "none";
-                    } else if (fileItems[i].style.display === "none" && parseInt(fileItems[i].value) === thisLevel + 1){
-                        fileItems[i].style.display = "flex";
-                    }
-                    const fileDropIcon = fileItems[i].getElementsByTagName("I")[1];
-                    if (fileDropIcon) {
-                        fileDropIcon.className = "fa fa-angle-right";
-                    }
-                } else {
-                    return;
-                }
-            }
         }
 
         if (level > this.lowLevel) {this.lowLevel = level;}
         let untitledNo = 1;
         for (let i=0;i<fileList.length;i++) {
             const listing = generateListing(fileList[i], level);
-            listing.addEventListener("click", function() {showHideChildren(this);});
             this.scrivDir.appendChild(listing);
             let kids = fileList[i].getElementsByTagName("Children")[0];
             if (kids) {this.buildHierarchy(kids.children, level + 1);}       
         }
     }
     submit() {
-
+        this.submitScriv.disabled = true;
         const breakType = this.dividerDatalist.value;
 
         /* Waits for all documents to have been processed */
@@ -257,6 +226,7 @@ class FileInterface extends Controller {
             });
 
             document.getElementById("outputfield").value = compiledOutput
+            document.getElementById("submitScriv").disabled = false;
         }
 
         let compiledDocument = new Map();
@@ -374,7 +344,7 @@ class BBCodeBuilder {
         }
 
         group.contents.forEach((subgroup) => {
-            if (subgroup.type === "text") {
+            if (subgroup.type === "text" || subgroup.type === "span" || subgroup.type === "fragment") {
                 groupString += this.processSubGroup(subgroup);
             }
         });
@@ -398,9 +368,9 @@ class BBCodeBuilder {
         }
 
         if (group.type === "paragraph") {
-            groupString += "\\n\\n";
+            groupString += "\n\n";
         } else if (group.type === "listitem") {
-            groupString += "\\n";
+            groupString += "\n";
         }
 
         return groupString;
@@ -459,7 +429,11 @@ class BBCodeBuilder {
             }
         } else {
             group.contents.forEach(subgroup => {
-                groupString += this.processSubgroup(subgroup);
+                if (typeof subgroup === "string") {
+                    groupString += subgroup;
+                } else {
+                    groupString += this.processSubGroup(subgroup);
+                } 
             });
         }
 
@@ -472,6 +446,7 @@ class BBCodeBuilder {
 async function rtfToBBCode(rtfString) {
     const builder = new BBCodeBuilder;
     const parsedRTFObj = await RibosomalRTF.parseString(rtfString);
+    console.log(parsedRTFObj)
     return builder.parseObject(parsedRTFObj);
 }
 
