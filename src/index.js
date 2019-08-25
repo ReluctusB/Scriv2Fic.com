@@ -214,15 +214,19 @@ class FileInterface extends Controller {
         }
 
         function compile(documentObj) {
-            console.log(documentObj);
+            //console.log(documentObj);
             let compiledOutput = "";
 
-            documentObj.forEach((contents, title, map) => {
+            documentObj.forEach((contents, title, maptar) => {
                 compiledOutput += `\n\n[center][h2]${title}[/h2][/center]\n\n`;
+                let j = 0;
                 contents.forEach((body, id, map) => {
-                    compiledOutput += body + breakType;
-                });
-                
+                    compiledOutput += body;
+                    if (map.size - 1 > j) {
+                        compiledOutput += breakType + "\n\n";
+                    }
+                    j++;
+                });  
             });
 
             document.getElementById("outputfield").value = compiledOutput
@@ -446,7 +450,7 @@ class BBCodeBuilder {
 async function rtfToBBCode(rtfString) {
     const builder = new BBCodeBuilder;
     const parsedRTFObj = await RibosomalRTF.parseString(rtfString);
-    console.log(parsedRTFObj)
+    //console.log(parsedRTFObj)
     return builder.parseObject(parsedRTFObj);
 }
 
