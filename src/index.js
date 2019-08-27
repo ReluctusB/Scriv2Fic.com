@@ -441,10 +441,8 @@ class BBCodeBuilder {
             });
         }
 
-        return groupString;
+        return groupString.replace(/[\n\r]/g, "");
     }
-
-
 }
 
 async function rtfToBBCode(rtfString) {
