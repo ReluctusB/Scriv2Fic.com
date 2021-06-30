@@ -175,7 +175,7 @@ class FileInterface extends Controller {
             }
             const ident = file.getAttribute("Type") != "Folder" ? file.getAttribute("ID") : "Folder";
             let icon = "🗎";
-            let hierDisplay = level > 1 ? "none" : "flex";
+            let hierDisplay = /*level > 2 ? "none" :*/ "flex";
             let include = file.getElementsByTagName("IncludeInCompile")[0] ? true : false;
             let hasChildren = ""
             if (file.getAttribute("Type").endsWith("Folder")) {icon = "🗁";}
@@ -194,6 +194,7 @@ class FileInterface extends Controller {
             const listing = generateListing(fileList[i], level);
             this.scrivDir.appendChild(listing);
             let kids = fileList[i].getElementsByTagName("Children")[0];
+            if (kids){console.log(kids.children);}
             if (kids) {this.buildHierarchy(kids.children, level + 1);}       
         }
     }
